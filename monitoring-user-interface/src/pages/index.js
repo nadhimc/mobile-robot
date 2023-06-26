@@ -23,7 +23,24 @@ Chart.register(
   TimeScale
 );
 
-const socket = io("http://192.168.1.100:3008"); // e.g. "http://192.168.1.100:3000"
+const socket = io("http://192.168.18.57:3008"); // e.g. "http://192.168.1.100:3000"
+
+const SocketInput = ({ title, socketEvent, step }) => {
+  const [value, setValue] = useState(0);
+
+  function onChange(event) {
+    let newValue = parseFloat(event.target.value) || 0;
+    socket.emit(socketEvent, newValue);
+    setValue(newValue);
+  }
+
+  return (
+    <div>
+      <h1>{title}</h1>
+      <input type="number" value={value} step={step || 1} onChange={onChange} />
+    </div>
+  );
+};
 
 export default function Home() {
   const [rightpwm, setRightpwm] = useState(0);
@@ -52,6 +69,13 @@ export default function Home() {
   const [rfidResetState, setRfidResetState] = useState(0);
   const [kcptnKanan, setKcptnKanan] = useState(3);
   const [kcptnKiri, setKcptnKiri] = useState(3);
+  const [sensorData, setSensorData] = useState();
+  const [leftDesiredSpeedData, setLeftDesiredSpeedData] = useState([]);
+  const [rightDesiredSpeedData, setRightDesiredSpeedData] = useState([]);
+  const [lineFollowerErrorData, setLineFollowerErrorData] = useState([]);
+  const [mpuData, setMpuData] = useState([]);
+  const [grafikOn, setGrafikOn] = useState(false);
+  const [changeStateVar, setChangeStateVar] = useState(0);
 
   useEffect(() => {
     const rightPwmSet = (value) => {
@@ -102,7 +126,7 @@ export default function Home() {
 
   useEffect(() => {
     const robotEventListener = (value) => {
-      console.log(value);
+      setSensorData(value);
       const newDataPoint = {
         x: new Date(),
         y: value.kecepatanLeft, // Ubah dengan logika pembaruan data Anda
@@ -110,6 +134,22 @@ export default function Home() {
       const newRightDataPoint = {
         x: new Date(),
         y: value.kecepatanRight, // Ubah dengan logika pembaruan data Anda
+      };
+      const newLeftDesiredSpeedDataPoint = {
+        x: new Date(),
+        y: value.leftdesiredspeed, // Ubah dengan logika pembaruan data Anda
+      };
+      const newRightDesiredSpeedDataPoint = {
+        x: new Date(),
+        y: value.rightdesiredspeed, // Ubah dengan logika pembaruan data Anda
+      };
+      const newLineFollowerErrorDataPoint = {
+        x: new Date(),
+        y: value.lfkiri === 0 ? 10 : value.lfkanan === 0 ? 0 : 5, // Ubah dengan logika pembaruan data Anda
+      };
+      const newMpuDataPoint = {
+        x: new Date(),
+        y: value.mpu, // Ubah dengan logika pembaruan data Anda
       };
       setData((prevData) => {
         if (prevData.length >= 201) {
@@ -122,6 +162,30 @@ export default function Home() {
           prevData.shift();
         }
         return [...prevData, newRightDataPoint];
+      });
+      setLeftDesiredSpeedData((prevData) => {
+        if (prevData.length >= 201) {
+          prevData.shift();
+        }
+        return [...prevData, newLeftDesiredSpeedDataPoint];
+      });
+      setRightDesiredSpeedData((prevData) => {
+        if (prevData.length >= 201) {
+          prevData.shift();
+        }
+        return [...prevData, newRightDesiredSpeedDataPoint];
+      });
+      setLineFollowerErrorData((prevData) => {
+        if (prevData.length >= 201) {
+          prevData.shift();
+        }
+        return [...prevData, newLineFollowerErrorDataPoint];
+      });
+      setMpuData((prevData) => {
+        if (prevData.length >= 201) {
+          prevData.shift();
+        }
+        return [...prevData, newMpuDataPoint];
       });
       const kcptnLmbt = 2;
       const kcptn = 3;
@@ -144,31 +208,43 @@ export default function Home() {
       setRfidResetState(rfidReset);
 
       if (distanceSensor < 30) {
+        setChangeStateVar(2);
         setStopInterrupt(1);
         setNote("BERHENTI");
       } else {
         setStopInterrupt(0);
+        if (changeStateVar === 2) {
+          setChangeStateVar(0);
+        }
         if (destinasi === "" && keberadaanPaket === 1) {
+          if (changeStateVar === 1) {
+            setChangeStateVar(0);
+          }
           setState(0);
           setNote("destinasi kosong, tidak ada keberadaan paket");
         }
         if (destinasi !== "" && keberadaanPaket === 1 && state === 0) {
+          setChangeStateVar(0);
           setState(1);
           setNote("destinasi ada, tidak ada keberadaan paket");
         }
         if (keberadaanPaket === 0 && state === 1) {
+          setChangeStateVar(0);
           setState(2);
           setNote("destinasi ada, keberadaan paket ada");
         }
         if (destinasi === rfid && state === 2) {
+          setChangeStateVar(0);
           setState(3);
           setNote("Ketemu keranjangnya");
         }
         if (keberadaanPaket === 1 && state === 3 && !dumpingState) {
+          setChangeStateVar(0);
           setState(4);
           setNote("Selesai Dumping");
         }
-        if (lfkiri === 0 && lfkanan === 0 && state === 4) {
+        if (rfid === "63 C7 32 E7" && state === 4) {
+          setChangeStateVar(0);
           setState(0);
           socket.emit("destination", "");
           setNote("kembali ke awal");
@@ -180,7 +256,7 @@ export default function Home() {
     return () => {
       socket.off("robotevent", robotEventListener);
     };
-  }, [state, dumpingState]);
+  }, [state, dumpingState, changeStateVar]);
 
   useEffect(() => {
     let speedSystem = 3;
@@ -191,13 +267,19 @@ export default function Home() {
         if (rfidResetState === 0) {
           socket.emit("rfidreset", 1);
         }
-        socket.emit("speed", 0);
-        socket.emit("dump", 2);
-        setDumpingTime(0);
-        setDumpingState(false);
+        if (changeStateVar === 0) {
+          socket.emit("speed", 0);
+          socket.emit("dump", 2);
+          setDumpingTime(0);
+          setDumpingState(false);
+          setChangeStateVar(state === 0 ? 3 : 1);
+        }
       }
       if (state === 2) {
-        socket.emit("speed", speedSystem);
+        if (changeStateVar === 0) {
+          socket.emit("speed", speedSystem);
+          setChangeStateVar(1);
+        }
         // socket.emit("rightspeed", 3);
         // socket.emit("leftspeed", 3);
       }
@@ -218,12 +300,18 @@ export default function Home() {
         // Membersihkan timer saat komponen unmount atau state berubah
       }
       if (state === 4) {
-        socket.emit("speed", speedSystem);
-        // socket.emit("rightspeed", kcptnKanan);
-        // socket.emit("leftspeed", kcptnKiri);
-        socket.emit("dump", 0);
-        if (rfidResetState === 2) {
-          socket.emit("rfidreset", 0);
+        if (changeStateVar === 0) {
+          socket.emit("speed", speedSystem);
+          // socket.emit("rightspeed", kcptnKanan);
+          // socket.emit("leftspeed", kcptnKiri);
+          socket.emit("dump", 0);
+          setChangeStateVar(1);
+          if (rfidResetState === 2) {
+            socket.emit("rfidreset", 0);
+          }
+        }
+        if (rfidResetState === 0) {
+          socket.emit("rfidreset", 1);
         }
         setDumpingState(false);
       }
@@ -238,38 +326,52 @@ export default function Home() {
     kcptnKiri,
   ]);
 
-  // useEffect(() => {
-  //   setDataLeft((prevDataLeft) => {
-  //     if (prevDataLeft.find((i) => i.pwm === leftpwm)) {
-  //       return prevDataLeft.map((i) => {
-  //         if (i.pwm === leftpwm) {
-  //           return {
-  //             pwm: leftpwm,
-  //             kecepatanLeft: leftSpeed,
-  //             kecepatanRight: rightSpeed,
-  //           };
-  //         } else {
-  //           return i;
-  //         }
-  //       });
-  //     } else {
-  //       return [
-  //         ...prevDataLeft,
-  //         {
-  //           pwm: leftpwm,
-  //           kecepatanLeft: leftSpeed,
-  //           kecepatanRight: rightSpeed,
-  //         },
-  //       ];
-  //     }
-  //   });
-  // }, [leftSpeed, rightSpeed, leftpwm]);
+  useEffect(() => {
+    setDataLeft((prevDataLeft) => {
+      if (prevDataLeft.find((i) => i.pwm === leftpwm)) {
+        return prevDataLeft.map((i) => {
+          if (i.pwm === leftpwm) {
+            return {
+              pwm: leftpwm,
+              kecepatanLeft: sensorData?.kecepatanLeft || 0,
+              kecepatanRight: sensorData?.kecepatanRight || 0,
+            };
+          } else {
+            return i;
+          }
+        });
+      } else {
+        return [
+          ...prevDataLeft,
+          {
+            pwm: leftpwm,
+            kecepatanLeft: sensorData?.kecepatanLeft || 0,
+            kecepatanRight: sensorData?.kecepatanRight || 0,
+          },
+        ];
+      }
+    });
+  }, [leftpwm, sensorData]);
 
   const speedChange = (event) => {
     let value = parseInt(event.target.value);
     socket.emit("speed", value);
     // socket.emit("leftspeed", value);
     setSpeed(value);
+  };
+
+  const leftSpeedChange = (event) => {
+    let value = parseInt(event.target.value);
+    socket.emit("leftspeed", value);
+    // socket.emit("leftleftSpeed", value);
+    setLeftSpeed(value);
+  };
+
+  const rightSpeedChange = (event) => {
+    let value = parseInt(event.target.value);
+    socket.emit("rightspeed", value);
+    // socket.emit("rightrightSpeed", value);
+    setRightSpeed(value);
   };
 
   const leftKpChange = (event) => {
@@ -312,14 +414,24 @@ export default function Home() {
     setCorrectionSpeed(value);
   };
 
+  const spinClick = () => {
+    let value = -3;
+    socket.emit("leftspeed", value);
+    // socket.emit("leftleftSpeed", value);
+    setLeftSpeed(value);
+    socket.emit("rightspeed", -1 * value);
+    // socket.emit("rightrightSpeed", value);
+    setRightSpeed(value * -1);
+  };
+
   const leftMotorMapping = () => {
     let pwm = 30;
     const intervalId = setInterval(() => {
       if (pwm <= 150) {
         setLeftpwm(pwm);
         socket.emit("leftpwm", pwm);
-        setRightpwm(pwm);
-        socket.emit("rightpwm", pwm);
+        // setRightpwm(pwm);
+        // socket.emit("rightpwm", pwm);
         pwm++;
       } else {
         clearInterval(intervalId);
@@ -356,10 +468,9 @@ export default function Home() {
 
   const stopAction = () => {
     let value = 0;
-    setRightpwm(value);
-    socket.emit("rightpwm", value);
-    setLeftpwm(value);
-    socket.emit("leftpwm", value);
+    socket.emit("speed", value);
+    // socket.emit("leftspeed", value);
+    setSpeed(value);
   };
 
   const resetGraph = () => {
@@ -420,6 +531,25 @@ export default function Home() {
           <div>
             <h1>SPEED</h1>
             <input type="number" value={speed} onChange={speedChange} />
+            <div style={{ display: "flex" }}>
+              <p>LEFT</p>
+              <input
+                type="number"
+                value={leftSpeed}
+                onChange={leftSpeedChange}
+              />
+            </div>
+            <div style={{ display: "flex" }}>
+              <p>RIGHT</p>
+              <input
+                type="number"
+                value={rightSpeed}
+                onChange={rightSpeedChange}
+              />
+            </div>
+            <div style={{ display: "flex" }}>
+              <button onClick={spinClick}>spin</button>
+            </div>
           </div>
           <div>
             <h1>Correction SPEED</h1>
@@ -484,6 +614,27 @@ export default function Home() {
               onChange={rightKdChange}
             />
           </div>
+          <div>
+            <h1>LF PID</h1>
+            <SocketInput title="Kp" socketEvent="lfkp" />
+            <SocketInput title="Ki" socketEvent="lfki" />
+            <SocketInput title="Kd" socketEvent="lfkd" />
+          </div>
+          <div>
+            <h1>MPU PID</h1>
+            <SocketInput title="Kp" socketEvent="mpukp" />
+            <SocketInput title="Ki" socketEvent="mpuki" />
+            <SocketInput title="Kd" socketEvent="mpukd" />
+          </div>
+          <div>
+            <h1>MODE PWM</h1>
+            <SocketInput title="Mode PWM" socketEvent="modepwm" />
+          </div>
+          <div>
+            <h1>RESET PID</h1>
+            <SocketInput title="reset pid" socketEvent="resetpid" />
+            <SocketInput title="MODE pid" socketEvent="pidmode" />
+          </div>
         </div>
         <div style={{ flex: 1 }}>
           <h1>Data</h1>
@@ -532,7 +683,7 @@ export default function Home() {
             />
           </div>
           <div>
-            <h1>RFID RESET {rfidResetState}</h1>
+            <h1>Sensor Reset {rfidResetState}</h1>
             <input
               value={rfidResetState}
               type="number"
@@ -541,6 +692,11 @@ export default function Home() {
                 setRfidResetState(value);
                 socket.emit("rfidreset", value);
               }}
+            />
+            <SocketInput title="reset MPU" socketEvent="mpureset" />
+            <SocketInput
+              title="TURNING LEFT DELAY"
+              socketEvent="turningleftdelay"
             />
           </div>
           <div>
@@ -553,19 +709,44 @@ export default function Home() {
             <p>Stop Interrupt: {stopInterrupt}</p>
             <p>{note}</p>
           </div>
+          <div>
+            <h1>Sensor</h1>
+            <div>
+              {Object.entries(
+                sensorData || { status: "Belum terkoneski" }
+              )?.map(([namaEntry, valueEntry]) => (
+                <p key={namaEntry}>
+                  {namaEntry}: {valueEntry}
+                </p>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-      <div style={{ minHeight: "100vh" }}>
-        <h1 style={{ textAlign: "center", fontWeight: "bold", marginTop: 5 }}>
-          Grafik
-        </h1>
-        <button onClick={resetGraph}>RESET</button>
-        <p>Kiri</p>
-        <RealtimeChart data={data} />
-        <p>Kanan</p>
-        <RealtimeChart data={rightData} />
-        <hr />
+      <div>
+        <button onClick={() => setGrafikOn((p) => !p)}>Grafik Toggle</button>
       </div>
+      {grafikOn && (
+        <div style={{ minHeight: "100vh" }}>
+          <h1 style={{ textAlign: "center", fontWeight: "bold", marginTop: 5 }}>
+            Grafik
+          </h1>
+          <button onClick={resetGraph}>RESET</button>
+          <p>Kiri</p>
+          <RealtimeChart data={data} />
+          <p>Kanan</p>
+          <RealtimeChart data={rightData} />
+          <p>left Desired Speed</p>
+          <RealtimeChart data={leftDesiredSpeedData} />
+          <p>right Desired Speed</p>
+          <RealtimeChart data={rightDesiredSpeedData} />
+          <p>line follower error</p>
+          <RealtimeChart data={lineFollowerErrorData} />
+          <p>MPU</p>
+          <RealtimeChart data={mpuData} />
+          <hr />
+        </div>
+      )}
     </>
   );
 }

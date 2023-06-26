@@ -10,7 +10,7 @@ void setup()
   //  USE_SERIAL.println();
   //  USE_SERIAL.println();
 
-  WiFiMulti.addAP("TP-Link_0F30", "15367976");
+  WiFiMulti.addAP("Final 4G", "BismillahLulus");
 
   // WiFi.disconnect();
   while (WiFiMulti.run() != WL_CONNECTED)
@@ -22,7 +22,7 @@ void setup()
   USE_SERIAL.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
   // server address, port and URL
-  socketIO.begin("192.168.1.100", 3008, "/socket.io/?EIO=4");
+  socketIO.begin("192.168.18.57", 3008, "/socket.io/?EIO=4");
 
   // event handler
   socketIO.onEvent(socketIOEvent);
@@ -73,15 +73,11 @@ void setup()
   pinMode(ECHO, INPUT);
   ///============== MPU6050
   Wire.begin();
-  mpu6050.begin();
-  mpu6050.calcGyroOffsets(true);
+  mpuInit();
   //=============== RFID
   while (!Serial)
     ;                 // Do nothing if no serial port is opened (added for Arduinos based on ATMEGA32U4)
   SPI.begin();        // Init SPI bus
-  mfrc522.PCD_Init(); // Init MFRC522
-  mfrc522.PCD_SetRegisterBitMask(mfrc522.RFCfgReg, (0x07 << 4));
-  delay(4);                          // Optional delay. Some board do need more time after init to be ready, see Readme
-  mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
+  rfidInit();
   Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
 }

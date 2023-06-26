@@ -33,8 +33,8 @@ SocketIOclient socketIO;
 #define CHANNEL_A_LEFT 36
 #define CHANNEL_B_LEFT 39
 
-#define CHANNEL_A_RIGHT 3
-#define CHANNEL_B_RIGHT 1
+#define CHANNEL_A_RIGHT 1
+#define CHANNEL_B_RIGHT 3
 
 // DEFINE STEP
 #define tick 534
@@ -100,22 +100,24 @@ float leftDesiredSpeed = 0.0;
 float leftCurrentSpeed = 0.0;
 float leftError = 0.0;
 float leftKp = 8.0;
-float leftKi = 0.3;
-float leftKd = 0.0;
+float leftKi = 0.6;
+float leftKd = 1.0;
 float leftIntegralTerm = 0.0;
 float leftDerivativeTerm = 0.0;
 float leftPreviousError = 0.0;
+float leftPIDControl;
 
 // Right PID Variables
 float rightDesiredSpeed = 0.0;
 float rightCurrentSpeed = 0.0;
 float rightError = 0.0;
 float rightKp = 8.0;
-float rightKi = 0.3;
-float rightKd = 0.0;
+float rightKi = 0.6;
+float rightKd = 1.0;
 float rightIntegralTerm = 0.0;
 float rightDerivativeTerm = 0.0;
 float rightPreviousError = 0.0;
+float rightPIDControl;
 // END PID VARIABLES
 
 // SENSOR LINE FOLLOWER
@@ -156,6 +158,42 @@ String destination = "";
   // rfid reset
   int rfid_reset = 0;
 
+//LINE FOLLOWER PID
+float PidLFError = 0.0;
+float PidLFKp = -0.3;
+float PidLFKi = 0.0;
+float PidLFKd = -0.42;
+float PidLFIntegralTerm = 0.0;
+float PidLFDerivativeTerm = 0.0;
+float PidLFPreviousError = 0.0;
+float LFPIDControl;
+
+//MPU PID
+float mpuSetPoint = 0.0;
+float PidMpuError = 0.0;
+float PidMpuKp = 0.0;
+float PidMpuKi = 0.0;
+float PidMpuKd = 0.0;
+float PidMpuIntegralTerm = 0.0;
+float PidMpuDerivativeTerm = 0.0;
+float PidMpuPreviousError = 0.0;
+float MpuPIDControl;
+
+//RESET PID
+int resetPID = 0;
+
+//TESTING VARIABLE
+int modePwm = 0;
+
+//REINITIATE MPU
+int mpu_reset = 0;
+
+//PID MODE STATE
+// 1 = Line_fol
+// 2 = MPU
+// OTHERS = Only Speed
+int pid_mode = 1;
+
 void loop()
 {
   socketIO.loop();
@@ -171,24 +209,42 @@ void loop()
   // stateManagement();
   // stateAction();
   if(rfid_reset==1){
-    mfrc522.PCD_Init(); // Init MFRC522
-    mfrc522.PCD_SetRegisterBitMask(mfrc522.RFCfgReg, (0x07 << 4));
-    delay(4);                          // Optional delay. Some board do need more time after init to be ready, see Readme
-    mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
+    rfidInit();
     rfid_reset=2;
   }
 
-  if (rightDesiredSpeed == 0 && leftDesiredSpeed == 0){
-    float leftIntegralTerm = 0.0;
-    float leftDerivativeTerm = 0.0;
-    float leftPreviousError = 0.0; 
-    float leftError = 0.0;
+  if(mpu_reset==1){
+    mpuInit();
+    mpu_reset=2;
+  }
 
-    float rightIntegralTerm = 0.0;
-    float rightDerivativeTerm = 0.0;
-    float rightPreviousError = 0.0; 
-    float rightError = 0.0;
-    motorStop();
+  if (rightDesiredSpeed == 0 && leftDesiredSpeed == 0){
+    leftIntegralTerm = 0.0;
+    leftDerivativeTerm = 0.0;
+    leftPreviousError = 0.0; 
+    leftError = 0.0;
+
+    rightIntegralTerm = 0.0;
+    rightDerivativeTerm = 0.0;
+    rightPreviousError = 0.0; 
+    rightError = 0.0;
+
+    PidLFError = 0.0;
+    PidLFIntegralTerm = 0.0;
+    PidLFDerivativeTerm = 0.0;
+    PidLFPreviousError = 0.0;
+
+    mpuSetPoint = gyroZ;
+    PidMpuError = 0.0;
+    PidMpuIntegralTerm = 0.0;
+    PidMpuDerivativeTerm = 0.0;
+    PidMpuPreviousError = 0.0;
+    
+    if(modePwm!=1){
+      motorStop();
+    }else{
+      maju(); 
+    }
   }else{
     maju();
   }
@@ -197,7 +253,12 @@ void loop()
   {
     timeDiff = (now - messageTimestamp) / 1000.0;
     messageTimestamp = now;
-    getPidData();
+    if(pid_mode==1){
+      navigation();  
+    }else if(pid_mode==2){
+      mpuPid();
+    }
+    getPidData(); 
     socketSendData();
   }
 }

@@ -85,8 +85,42 @@ function handleSocketConnections(socket) {
     console.log("EVENT NAME", value);
   });
 
+  socket.on("lfkp", (value) => {
+    console.log("lfkp", value);
+    socket.broadcast.emit("lfkp", value);
+  });
+
+  socket.on("lfki", (value) => {
+    console.log("lfki", value);
+    socket.broadcast.emit("lfki", value);
+  });
+
+  socket.on("lfkd", (value) => {
+    console.log("lfkd", value);
+    socket.broadcast.emit("lfkd", value);
+  });
+
+  socket.on("mpukp", (value) => {
+    console.log("mpukp", value);
+    socket.broadcast.emit("mpukp", value);
+  });
+
+  socket.on("mpuki", (value) => {
+    console.log("mpuki", value);
+    socket.broadcast.emit("mpuki", value);
+  });
+
+  socket.on("mpukd", (value) => {
+    console.log("mpukd", value);
+    socket.broadcast.emit("mpukd", value);
+  });
+
   socket.on("rfidreset", (value) => {
     socket.broadcast.emit("rfidreset", value);
+  });
+
+  socket.on("resetpid", (value) => {
+    socket.broadcast.emit("resetpid", value);
   });
 
   socket.on("rightspeed", (value) => {
@@ -95,6 +129,22 @@ function handleSocketConnections(socket) {
 
   socket.on("leftspeed", (value) => {
     socket.broadcast.emit("leftspeed", value);
+  });
+
+  socket.on("modepwm", (value) => {
+    socket.broadcast.emit("modepwm", value);
+  });
+
+  socket.on("mpureset", (value) => {
+    socket.broadcast.emit("mpureset", value);
+  });
+
+  socket.on("pidmode", (value) => {
+    socket.broadcast.emit("pidmode", value);
+  });
+
+  socket.on("turningleftdelay", (value) => {
+    socket.broadcast.emit("turningleftdelay", value);
   });
 
   socket.on("disconnect", () => {

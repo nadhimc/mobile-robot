@@ -1,11 +1,23 @@
 void maju() {
   // kanan CW Kiri CCW berarti
   // kanan CW
-  digitalWrite(LPWM_R, HIGH);
-  digitalWrite(RPWM_R, LOW);
+  if(rightDesiredSpeed>=0){
+    digitalWrite(LPWM_R, HIGH);
+    digitalWrite(RPWM_R, LOW);
+  }else{
+    digitalWrite(LPWM_R, LOW);
+    digitalWrite(RPWM_R, HIGH);
+  }
+  
   // kiri CCW
-  digitalWrite(LPWM_L, LOW);
-  digitalWrite(RPWM_L, HIGH);
+  if(leftDesiredSpeed>=0){
+    digitalWrite(LPWM_L, LOW);
+    digitalWrite(RPWM_L, HIGH);
+  }else{
+    digitalWrite(LPWM_L, HIGH);
+    digitalWrite(RPWM_L, LOW);
+  }
+  
 
   // pakai analogWrite
   //  analogWrite(PWM_R, dutyCycle);

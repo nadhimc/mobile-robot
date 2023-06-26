@@ -24,9 +24,26 @@ void socketSendData()
   param1["rightKp"] = rightKp;
   param1["rightKi"] = rightKi;
   param1["rightKd"] = rightKd;
+  param1["LFKp"] = PidLFKp;
+  param1["LFKi"] = PidLFKi;
+  param1["LFKd"] = PidLFKd;
+  param1["MpuKp"] = PidMpuKp;
+  param1["MpuKi"] = PidMpuKi;
+  param1["MpuKd"] = PidMpuKd;
   param1["rfidReset"] = rfid_reset;
   param1["lfkiri"] = Line_fol[1];
   param1["lfkanan"] = Line_fol[4];
+  param1["lfpidcontrol"] = LFPIDControl;
+  param1["leftdesiredspeed"] = leftDesiredSpeed;
+  param1["rightdesiredspeed"] = rightDesiredSpeed;
+  param1["leftPIDControl"] = leftPIDControl;
+  param1["rightPIDControl"] = rightPIDControl;
+  param1["resetpid"] = resetPID;
+  param1["modePwm"] = modePwm;
+  param1["mpu_reset"] = mpu_reset;
+  param1["mpuSetPoint"] = mpuSetPoint;
+  param1["pid_mode"] = pid_mode;
+  param1["turningLeftDelayTime"] = turningLeftDelayTime;
   content = "";
 
   // JSON to String (serializion)

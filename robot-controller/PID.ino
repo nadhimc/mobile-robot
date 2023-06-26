@@ -10,33 +10,35 @@ void getPidData()
   //    START PID
 
   // Left PID calculation
-  leftError = leftDesiredSpeed - leftCurrentSpeed;
+  leftError = abs(leftDesiredSpeed) - leftCurrentSpeed;
   leftIntegralTerm += leftError;
   leftDerivativeTerm = leftError - leftPreviousError;
 
   // Left PID control
-  float leftPIDControl = (leftKp * leftError) + (leftKi * leftIntegralTerm) + (leftKd * leftDerivativeTerm);
-  if (leftPIDControl > 50)
+  leftPIDControl = (leftKp * leftError) + (leftKi * leftIntegralTerm) + (leftKd * leftDerivativeTerm);
+  if (leftPIDControl > 255)
   {
-    leftPIDControl = 50;
+    leftPIDControl = 255;
   }
   // Update leftPreviousError for the next iteration
   leftPreviousError = leftError;
 
   // Right PID calculation
-  rightError = rightDesiredSpeed - rightCurrentSpeed; // PID YANG BENAR
+  rightError = abs(rightDesiredSpeed) - rightCurrentSpeed; // PID YANG BENAR
   rightIntegralTerm += rightError;
   rightDerivativeTerm = rightError - rightPreviousError;
 
   // Right PID control
-  float rightPIDControl = (rightKp * rightError) + (rightKi * rightIntegralTerm) + (rightKd * rightDerivativeTerm);
-  if (rightPIDControl > 50)
+  rightPIDControl = (rightKp * rightError) + (rightKi * rightIntegralTerm) + (rightKd * rightDerivativeTerm);
+  if (rightPIDControl > 255)
   {
-    rightPIDControl = 50;
+    rightPIDControl = 255;
   }
   // Update rightPreviousError for the next iteration
   rightPreviousError = rightError;
 
-  dutyCycle = (leftPIDControl >= 255) ? 255 : ((leftPIDControl <= 0) ? 0 : leftPIDControl);
-  rightDutyCycle = (rightPIDControl >= 255) ? 255 : ((rightPIDControl <= 0) ? 0 : rightPIDControl);
+  if(modePwm!=1){
+    dutyCycle = (leftPIDControl >= 255) ? 255 : ((leftPIDControl <= 0) ? 0 : leftPIDControl);
+    rightDutyCycle = (rightPIDControl >= 255) ? 255 : ((rightPIDControl <= 0) ? 0 : rightPIDControl); 
+  }
 }

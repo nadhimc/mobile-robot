@@ -4,6 +4,7 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length)
   {
   case sIOtype_DISCONNECT:
     //      USE_SERIAL.printf("[IOc] Disconnected!\n");
+    desiredSpeed = 0;
     break;
   case sIOtype_CONNECT:
     //      USE_SERIAL.printf("[IOc] Connected to url: %s\n", payload);
@@ -91,16 +92,62 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length)
     {
       rightKd = variable;
     }
-    if (eventName == "dump")  
+    if (eventName == "lfkp")
+    {
+      PidLFKp = variable;
+    }
+    if (eventName == "lfki")
+    {
+      PidLFKi = variable;
+    }
+    if (eventName == "lfkd")
+    {
+      PidLFKd = variable;
+    }
+    if (eventName == "mpukp")
+    {
+      PidMpuKp = variable;
+    }
+    if (eventName == "mpuki")
+    {
+      PidMpuKi = variable;
+    }
+    if (eventName == "mpukd")
+    {
+      PidMpuKd = variable;
+    }
+    if (eventName == "dump")
     {
       dumpState = variable;
     }
-    if(eventName=="destination"){
+    if (eventName == "destination")
+    {
       destination = doc[1].as<String>();
       destination_state = 1;
     }
-    if(eventName=="rfidreset"){
+    if (eventName == "rfidreset")
+    {
       rfid_reset = variable;
+    }
+    if (eventName == "mpureset")
+    {
+      mpu_reset = variable;
+    }
+    if (eventName == "resetpid")
+    {
+      resetPID = variable;
+    }
+    if(eventName == "modepwm")
+    {
+      modePwm = (int)variable;
+    }
+    if(eventName == "pidmode")
+    {
+      pid_mode = (int)variable;
+    }
+    if(eventName == "turningleftdelay")
+    {
+      turningLeftDelayTime = (int)variable;
     }
     //        USE_SERIAL.printf("[IOc] event name: %s\n", eventName.c_str());
 
