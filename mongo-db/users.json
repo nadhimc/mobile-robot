@@ -1,0 +1,41 @@
+[{
+  "_id": {
+    "$oid": "647a10c482844a391da91eb8"
+  },
+  "username": "admin",
+  "password": "$2b$10$d2KGi.C.TY/g7czDElu5fu2S.6g4cvKTgMIIXcxWZDnB433VOtdHO",
+  "tujuan": true,
+  "scanner": true,
+  "pengguna": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "647b10d665202b42f5bf5ef7"
+  },
+  "username": "nadhim",
+  "password": "$2b$10$MpyGgzx7bme6csqex6I6sObX4P454vDSJv3XAvms8LdLbpBm14AT2",
+  "tujuan": true,
+  "scanner": true,
+  "pengguna": true,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "647c3b3f84dd2588b8f19edd"
+  },
+  "username": "william",
+  "password": "$2b$10$hiegdBJFvW9DxIBrC3qTVOizokh1pYqVqeJuy4Rhe01kcE5BptfEG",
+  "tujuan": true,
+  "scanner": true,
+  "pengguna": false,
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "647c3b4e84dd2588b8f19ee5"
+  },
+  "username": "greg",
+  "password": "$2b$10$CyQ2Np3DNkmq9Bq4loPUS.qLLqysm0V6.pa1M.xqsSFRhIH0GE2ne",
+  "tujuan": true,
+  "scanner": true,
+  "pengguna": false,
+  "__v": 0
+}]

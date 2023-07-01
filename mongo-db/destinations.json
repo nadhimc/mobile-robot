@@ -1,0 +1,58 @@
+[{
+  "_id": {
+    "$oid": "646b71590a67a17371861d24"
+  },
+  "jumlah": 0,
+  "kode": "BDG",
+  "label": "Bandung",
+  "urutan": "2",
+  "rfid": "63 C7 32 E7"
+},{
+  "_id": {
+    "$oid": "646b71aa0a67a17371861d25"
+  },
+  "jumlah": 0,
+  "kode": "JKT",
+  "label": "Jakarta",
+  "urutan": "1",
+  "rfid": "63 5C 95 E7"
+},{
+  "_id": {
+    "$oid": "646b71d10a67a17371861d26"
+  },
+  "jumlah": 0,
+  "kode": "SBY",
+  "label": "Surabaya",
+  "urutan": "3",
+  "rfid": "13 EF 93 E7"
+},{
+  "_id": {
+    "$oid": "647d4cf20f707f03ea20fad5"
+  },
+  "jumlah": 0,
+  "kode": "MDN",
+  "label": "Medan",
+  "urutan": "0",
+  "rfid": "3A 56 AE 16",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "647d4d060f707f03ea20fada"
+  },
+  "jumlah": 0,
+  "kode": "LMJ",
+  "label": "Lumajang",
+  "urutan": "0",
+  "rfid": "35 2A F4 01",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "647d4d1f0f707f03ea20fadf"
+  },
+  "jumlah": 0,
+  "kode": "YGY",
+  "label": "Yogyakarta",
+  "urutan": "0",
+  "rfid": "33 8C 81 E7",
+  "__v": 0
+}]
