@@ -22,7 +22,7 @@
 /user-interface/npm-debug.log*
 /user-interface/yarn-debug.log*
 /user-interface/yarn-error.log*
-/user-interface/.env
+# /user-interface/.env
 
 ##monitoring
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.

@@ -18,11 +18,9 @@ function handleSocketConnections(socket) {
     socket.broadcast.emit("robotevent", value);
     let timeStamp = new Date().getTime();
     let content = `${timeStamp};`;
-    Object.entries(sensorData || { status: "Belum terkoneski" })?.map(
-      ([namaEntry, valueEntry]) => {
-        content = content + `;${valueEntry}`;
-      }
-    );
+    Object.entries(value)?.map(([namaEntry, valueEntry]) => {
+      content = content + `;${valueEntry}`;
+    });
     content = content + "\n";
     fs.appendFile("../log/robotevent.csv", content);
   });
