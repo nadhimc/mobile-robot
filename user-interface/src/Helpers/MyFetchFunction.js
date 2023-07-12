@@ -1,6 +1,6 @@
 const MyFetchFunction = async (url, method, body) => {
-  // let mainUrl = process.env.REACT_APP_API_SERVER;
-  let mainUrl = "http://192.168.18.57:3002";
+  let mainUrl = process.env.REACT_APP_API_SERVER;
+  // let mainUrl = "http://192.168.46.197:3002";
   let token = localStorage.getItem("token");
   let headers = {
     "Content-Type": "application/json",

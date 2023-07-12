@@ -23,7 +23,7 @@ Chart.register(
   TimeScale
 );
 
-const socket = io("http://192.168.18.57:3008"); // e.g. "http://192.168.1.100:3000"
+const socket = io("http://192.168.46.197:3008"); // e.g. "http://192.168.1.100:3000"
 
 const SocketInput = ({ title, socketEvent, step }) => {
   const [value, setValue] = useState(0);
@@ -223,7 +223,7 @@ export default function Home() {
           setState(0);
           setNote("destinasi kosong, tidak ada keberadaan paket");
         }
-        if (destinasi !== "" && keberadaanPaket === 1 && state === 0) {
+        if (destinasi !== "" && state === 0) {
           setChangeStateVar(0);
           setState(1);
           setNote("destinasi ada, tidak ada keberadaan paket");
@@ -243,7 +243,7 @@ export default function Home() {
           setState(4);
           setNote("Selesai Dumping");
         }
-        if (rfid === "63 C7 32 E7" && state === 4) {
+        if (rfid === "13 EF 93 E7" && state === 4) {
           setChangeStateVar(0);
           setState(0);
           socket.emit("destination", "");
@@ -259,7 +259,7 @@ export default function Home() {
   }, [state, dumpingState, changeStateVar]);
 
   useEffect(() => {
-    let speedSystem = 3;
+    let speedSystem = 5;
     if (stopInterrupt === 1) {
       socket.emit("speed", 0);
     } else {
@@ -292,7 +292,7 @@ export default function Home() {
           setDumpingState(true);
         } else {
           let now = new Date();
-          if (now.getTime() - dumpingTime >= 10 * 1000) {
+          if (now.getTime() - dumpingTime >= 6 * 1000) {
             setDumpingState(false);
           }
         }
@@ -694,6 +694,11 @@ export default function Home() {
               }}
             />
             <SocketInput title="reset MPU" socketEvent="mpureset" />
+            <SocketInput title="Turn Left Speed" socketEvent="turnleftspeed" />
+            <SocketInput
+              title="Turn Right Speed"
+              socketEvent="turnrightspeed"
+            />
             <SocketInput
               title="TURNING LEFT DELAY"
               socketEvent="turningleftdelay"

@@ -10,6 +10,7 @@ void socketSendData()
 
   // add payload (parameters) for the event
   JsonObject param1 = array.createNestedObject();
+  param1["time"] = now;
   param1["kecepatanLeft"] = leftCurrentSpeed;
   param1["kecepatanRight"] = rightCurrentSpeed;
   param1["rfid"] = content.substring(1);
@@ -43,6 +44,8 @@ void socketSendData()
   param1["mpu_reset"] = mpu_reset;
   param1["mpuSetPoint"] = mpuSetPoint;
   param1["pid_mode"] = pid_mode;
+  param1["turnLeftSpeed"] = turnLeftSpeed;
+  param1["turnRightSpeed"] = turnRightSpeed;
   param1["turningLeftDelayTime"] = turningLeftDelayTime;
   content = "";
 

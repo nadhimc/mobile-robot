@@ -10,7 +10,7 @@ void setup()
   //  USE_SERIAL.println();
   //  USE_SERIAL.println();
 
-  WiFiMulti.addAP("Final 4G", "BismillahLulus");
+  WiFiMulti.addAP("hospot", "11111111");
 
   // WiFi.disconnect();
   while (WiFiMulti.run() != WL_CONNECTED)
@@ -22,7 +22,7 @@ void setup()
   USE_SERIAL.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
   // server address, port and URL
-  socketIO.begin("192.168.18.57", 3008, "/socket.io/?EIO=4");
+  socketIO.begin("192.168.46.197", 3008, "/socket.io/?EIO=4");
 
   // event handler
   socketIO.onEvent(socketIOEvent);

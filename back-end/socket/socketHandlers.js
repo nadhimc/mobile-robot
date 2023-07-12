@@ -1,3 +1,5 @@
+const fs = require("fs/promises");
+
 function handleSocketConnections(socket) {
   console.log("Client connected", socket.id);
 
@@ -14,6 +16,15 @@ function handleSocketConnections(socket) {
   socket.on("robotevent", (value) => {
     // console.log("robotevent", value);
     socket.broadcast.emit("robotevent", value);
+    let timeStamp = new Date().getTime();
+    let content = `${timeStamp};`;
+    Object.entries(sensorData || { status: "Belum terkoneski" })?.map(
+      ([namaEntry, valueEntry]) => {
+        content = content + `;${valueEntry}`;
+      }
+    );
+    content = content + "\n";
+    fs.appendFile("../log/robotevent.csv", content);
   });
 
   socket.on("speed", (value) => {
@@ -141,6 +152,14 @@ function handleSocketConnections(socket) {
 
   socket.on("pidmode", (value) => {
     socket.broadcast.emit("pidmode", value);
+  });
+
+  socket.on("turnleftspeed", (value) => {
+    socket.broadcast.emit("turnleftspeed", value);
+  });
+
+  socket.on("turnrightspeed", (value) => {
+    socket.broadcast.emit("turnrightspeed", value);
   });
 
   socket.on("turningleftdelay", (value) => {

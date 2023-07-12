@@ -145,6 +145,14 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length)
     {
       pid_mode = (int)variable;
     }
+    if(eventName == "turnrightspeed")
+    {
+      turnRightSpeed = variable;
+    }
+    if(eventName == "turnleftspeed")
+    {
+      turnLeftSpeed = variable;
+    }
     if(eventName == "turningleftdelay")
     {
       turningLeftDelayTime = (int)variable;

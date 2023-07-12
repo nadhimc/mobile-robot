@@ -49,7 +49,7 @@ const Scanner = () => {
 
   useEffect(() => {
     // Inisialisasi socket.io saat komponen di-mount
-    const sockett = io("http://192.168.18.57:3008");
+    const sockett = io(process.env.REACT_APP_SOCKET_SERVER);
     setSocket(sockett);
 
     // Membersihkan socket.io saat komponen di-unmount
